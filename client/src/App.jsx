@@ -4,7 +4,12 @@ import axios from "axios";
 import { io } from "socket.io-client";
 import "./App.css";
 
-const API_URL = "http://localhost:5000";
+// Production uses the Vercel environment variable.
+// Local development falls back to localhost.
+const API_URL = (
+  import.meta.env.VITE_API_URL || "http://localhost:5000"
+).replace(/\/+$/, "");
+
 const socket = io(API_URL, { autoConnect: false });
 
 function App() {
@@ -320,8 +325,7 @@ function App() {
           ) : (
             users.map((person) => {
               const personId = String(person._id || person.id);
-              const active =
-                personId === String(selectedUserId || "");
+              const active = personId === String(selectedUserId || "");
 
               return (
                 <button
@@ -408,9 +412,7 @@ function App() {
               {error && <p className="empty-message">{error}</p>}
 
               {!loading && messages.length === 0 && !error && (
-                <p className="empty-message">
-                  No messages yet. Say hello!
-                </p>
+                <p className="empty-message">No messages yet. Say hello!</p>
               )}
 
               {messages.map((item, index) => {
@@ -450,7 +452,9 @@ function App() {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder={
-              selectedUser ? "Type your private message..." : "Select a contact first"
+              selectedUser
+                ? "Type your private message..."
+                : "Select a contact first"
             }
             disabled={!connected || !selectedUser}
             maxLength={2000}
